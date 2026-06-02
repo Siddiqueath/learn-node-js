@@ -9,17 +9,27 @@ const {
 const Logger = require('./logger');
 const mongoose = require('mongoose');
 const fs = require('fs').promises;
-
-const logger = new Logger();
-logger.on('route_hit', (req) => {
-  console.log(`[ BackGround Task ${req.time}] - ${req.method} : ${req.path}`);
-});
+const helmet = require('helmet');
+const cors = require('cors');
 
 const app = express();
+
+app.use(helmet());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+  }),
+);
+
 app.use(express.json());
 app.use((req, res, next) => {
   logger.logRequest(req);
   next();
+});
+
+const logger = new Logger();
+logger.on('route_hit', (req) => {
+  console.log(`[ BackGround Task ${req.time}] - ${req.method} : ${req.path}`);
 });
 
 const validatePassword = (req, res, next) => {

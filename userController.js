@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const User = require('./userModel');
+const bcrypt = require('bcrypt');
 
 const getUser = async (req, res) => {
   const user = req.user;
@@ -30,7 +31,9 @@ const registerUser = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    User.create({ username, password });
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    User.create({ username, password: encryptedPassword });
 
     res.send('User is registered successfully in database');
   } catch (err) {
@@ -56,7 +59,8 @@ const verifyUser = async (req, res, next) => {
       return res.status(404).send(`Username ${username} not found`);
     }
 
-    if (user.password !== password) {
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
       return res.status(401).send('Access Denied: Incorrect Password');
     }
 
