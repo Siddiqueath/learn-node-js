@@ -2,12 +2,8 @@ const fs = require('fs').promises;
 const User = require('./userModel');
 
 const getUser = async (req, res) => {
-  const { username } = req.params;
+  const user = req.user;
   try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).send(`username ${username} not found`);
-    }
     res.json(user);
   } catch (err) {
     console.log(err);
@@ -54,18 +50,17 @@ const verifyUser = async (req, res, next) => {
         .send('Access Denied: No password is sent on headers');
     }
 
-    const fileData = await fs.readFile('users.json', 'utf-8');
-    const users = JSON.parse(fileData);
+    const user = await User.findOne({ username });
 
-    const user = users.find((u) => u.username === username);
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send(`Username ${username} not found`);
     }
 
     if (user.password !== password) {
       return res.status(401).send('Access Denied: Incorrect Password');
     }
 
+    req.user = user;
     next();
   } catch (err) {
     console.error(err);
