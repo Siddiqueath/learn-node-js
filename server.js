@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const {
   getUser,
@@ -39,9 +40,7 @@ app.delete('/users/:username', deleteUser);
 
 app.post('/register', validatePassword, registerUser);
 
-const p1 = 'aVwDI405TT6Ay43p';
-const dbURI = `mongodb+srv://siddique:${p1}@cluster0.06bv7ql.mongodb.net/?appName=Cluster0`;
-
+const dbURI = process.env.MONGO_DB_URI;
 mongoose
   .connect(dbURI)
   .then(() => console.log('Connected to Mongo DB Atlas'))
