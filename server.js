@@ -11,6 +11,11 @@ const mongoose = require('mongoose');
 const fs = require('fs').promises;
 const helmet = require('helmet');
 const cors = require('cors');
+const {
+  createUserPost,
+  getAllPosts,
+  getUserPost,
+} = require('./postController');
 
 const app = express();
 
@@ -51,11 +56,16 @@ app.delete('/users/:username', deleteUser);
 app.post('/register', validatePassword, registerUser);
 
 const dbURI = process.env.MONGO_DB_URI;
+
 mongoose
   .connect(dbURI)
   .then(() => console.log('Connected to Mongo DB Atlas'))
   .catch((err) =>
     console.error('Error occured while connection to database', err),
   );
+
+app.get('/posts', getAllPosts);
+app.get('/users/:username/posts', verifyUser, getUserPost);
+app.post('/users/:username/posts', createUserPost);
 
 module.exports = app;

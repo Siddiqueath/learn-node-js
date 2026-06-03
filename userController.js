@@ -3,7 +3,7 @@ const User = require('./userModel');
 const bcrypt = require('bcrypt');
 
 const getUser = async (req, res) => {
-  const user = req.user;
+  const user = req.userProfile;
   try {
     res.json(user);
   } catch (err) {
@@ -64,7 +64,7 @@ const verifyUser = async (req, res, next) => {
       return res.status(401).send('Access Denied: Incorrect Password');
     }
 
-    req.user = user;
+    req.userProfile = user;
     next();
   } catch (err) {
     console.error(err);
