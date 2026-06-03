@@ -55,7 +55,7 @@ mongoose
   .connect(dbURI)
   .then(() => console.log('Connected to Mongo DB Atlas'))
   .catch((err) =>
-    console.log('Error occured while connection to database', err),
+    console.error('Error occured while connection to database', err),
   );
 
-app.listen(3000, () => console.log('server is running on port 3000'));
+module.exports = app;
