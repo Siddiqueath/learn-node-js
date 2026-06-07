@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const crypto = require('crypto');
 const {
   getUser,
   deleteUser,
@@ -15,6 +16,13 @@ const {
   createUserPost,
   getAllPosts,
   getUserPost,
+  getOptimizedFeed,
+  getUnoptimizedFeed,
+  getAllPostsUnoptimized,
+  getAllPostsOptimized,
+  triggerMemoryLeak,
+  blockEventLoop,
+  nonBlockingHeavyWorker,
 } = require('./postController');
 
 const app = express();
@@ -27,8 +35,9 @@ app.use(
 );
 
 app.use(express.json());
+
 app.use((req, res, next) => {
-  logger.logRequest(req);
+  req.id = crypto.randomUUID();
   next();
 });
 
@@ -55,6 +64,9 @@ app.delete('/users/:username', deleteUser);
 
 app.post('/register', validatePassword, registerUser);
 
+app.get('/heavy', blockEventLoop);
+app.get('/goodheavy', nonBlockingHeavyWorker);
+
 const dbURI = process.env.MONGO_DB_URI;
 
 mongoose
@@ -65,7 +77,12 @@ mongoose
   );
 
 app.get('/posts', getAllPosts);
+app.get('/posts/bad', getAllPostsUnoptimized);
+app.get('/posts/good', getAllPostsOptimized);
 app.get('/users/:username/posts', verifyUser, getUserPost);
 app.post('/users/:username/posts', createUserPost);
+
+app.get('/leak', triggerMemoryLeak);
+app.get('/feed', getOptimizedFeed);
 
 module.exports = app;
